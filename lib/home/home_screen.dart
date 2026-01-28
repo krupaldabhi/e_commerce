@@ -11,6 +11,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
+    double screenWidth = double.infinity;
     return Scaffold(
       backgroundColor: const Color(0xFFE3F2FD),
 
@@ -111,8 +112,66 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
-      body: Column(
-        children: [],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+           GridView.builder(
+             shrinkWrap: true,
+             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+               crossAxisCount: 2,
+               mainAxisSpacing: 12,
+               crossAxisSpacing: 12,
+               childAspectRatio: 0.68,
+             ), itemCount: 5,
+             itemBuilder: (context , index){
+               return  Container(
+                 padding: EdgeInsets.all(10),
+                 decoration: BoxDecoration(
+                     color: Colors.white,
+                     borderRadius: BorderRadius.circular(10)
+                 ),
+                 child: Column(
+                   spacing: 05,
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     Image(image:
+                     AssetImage(
+                         "assets/images/demo_product.png"),
+                       width: screenWidth,height: 100,fit: BoxFit.fill,),
+                     Text(
+                       "Titlessadfasnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssdfsadfasdfffffffffffffadfsdf",
+                       maxLines: 2  ,
+                       style: TextStyle(
+        
+                         fontSize: 15,
+                         fontWeight: FontWeight.w800,color: Colors.black),),
+                     Text("₹ 200",style: TextStyle(fontSize: 15,
+                         fontWeight: FontWeight.w800,color: Colors.black),),
+                     Container(
+                       padding: EdgeInsets.all(08),
+                       decoration: BoxDecoration(
+                           color: Colors.blue,
+                           borderRadius: BorderRadius.circular(10)
+                       ),
+                       child: Row(
+                         children: [
+                           Icon(Icons.shopping_cart_rounded, color: Colors.white,  ),
+                           SizedBox(width: 10,),
+                           Text("Add To Cart",style: TextStyle(color: Colors.white),
+                           ),
+        
+        
+                         ],
+                       ),
+                     ),
+                   ],
+                 ),
+               );
+             }
+        
+             , )
+          ],
+        ),
       ),
     );
   }
