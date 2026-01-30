@@ -1,72 +1,172 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class ProductDetailsScreen extends StatefulWidget {
+import 'checkout_screen.dart';
+
+class ProductDetailsScreen extends StatelessWidget {
   const ProductDetailsScreen({super.key});
 
   @override
-  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
-}
-
-class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
+      backgroundColor: const Color(0xFFF9FAFB),
+
       appBar: AppBar(
-        title: Text("Demo Produt Details"),
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF2563EB),
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
+        ),
+        title: const Text(
+          "Product Details",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 10,
           children: [
-            Image(
-              image: AssetImage("assets/images/demo_product.png"),
-              width: double.infinity,
-              height: 180,
-              fit: BoxFit.fill,
-            ),
-            Text(
-              "Product Title",
-              style: TextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            Text(
-              "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-            Container(
-              padding: EdgeInsets.all(08),
-              decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(10)
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.shopping_cart_rounded, color: Colors.white,  ),
-                  SizedBox(width: 10,),
-                  Text("Add To Cart",style: TextStyle(color: Colors.white,fontSize: 18),
-                  ),
-                ],
+
+            /// PRODUCT IMAGE
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                "assets/images/demo_product.png",
+                width: double.infinity,
+                height: 240,
+                fit: BoxFit.cover,
               ),
             ),
 
+            const SizedBox(height: 14),
+
+            /// TITLE
+            const Text(
+              "Premium Demo Product",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF111827),
+              ),
+            ),
+
+            const SizedBox(height: 6),
+
+            Text(
+              "₹299",
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF16A34A),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            /// DESCRIPTION
+            const Text(
+              "This is a premium demo product built for showcasing a clean and professional UI. "
+                  "The product quality is excellent and suitable for daily use.",
+              style: TextStyle(
+                fontSize: 14,
+                color: Color(0xFF6B7280),
+                height: 1.5,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            /// ACTION BUTTONS
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.shopping_cart_outlined , color: Colors.white,),
+                    label: const Text("Add to Cart", style: TextStyle(color: Colors.white),),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2563EB),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.favorite_border),
+                    label: const Text("Wishlist",),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xFFEF4444),
+                      side: const BorderSide(color: Color(0xFFEF4444)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
-      bottomSheet:Container(
-        width: double.infinity,
-        padding: EdgeInsets.all(08),
+
+      /// BOTTOM BUY BAR
+      bottomNavigationBar: Container(
+        height: 80,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(10)
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, -2),
+            ),
+          ],
         ),
-        child: Text("Shop Now",style: TextStyle(color: Colors.white,fontSize: 22),
+        child: Row(
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                Text("Total Price", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(
+                  "₹299",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  Get.to(CheckoutScreen(),arguments: 1 );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFEF4444),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: const Text(
+                  "Buy Now",
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
