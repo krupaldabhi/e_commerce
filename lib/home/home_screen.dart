@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
+import '../user_profile/user_screen.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -97,7 +99,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               leading: Icon(Icons.person, color: Colors.blue),
               title: const Text("User Profile"),
-              onTap: () {},
+              onTap: () {
+                Get.to(UserScreen());              },
             ),
 
 
