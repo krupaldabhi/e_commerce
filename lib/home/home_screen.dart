@@ -1,10 +1,13 @@
 import 'package:e_commerce_app/home/product_details_screen.dart';
+import 'package:e_commerce_app/home/wishlist_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
 import '../user_profile/user_screen.dart';
+import 'cart_screen.dart';
+import 'categories_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -75,13 +78,18 @@ class _HomeScreenState extends State<HomeScreen> {
             ListTile(
               leading: Icon(CupertinoIcons.heart_fill, color: Colors.blue),
               title: const Text("Wishlist"),
-              onTap: () {},
+              onTap: () {
+                Get.to(WishlistScreen());
+              },
             ),
 
             ListTile(
               leading: Icon(CupertinoIcons.cart_fill, color: Colors.blue),
               title: const Text("My Cart"),
-              onTap: () {},
+              onTap: () {
+
+                Get.to(CartScreen());
+              },
             ),
 
             ListTile(
@@ -122,8 +130,50 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            GridView.builder(
+Text("Categories",style: TextStyle(fontSize: 22,fontWeight: FontWeight.w700),),
+             SizedBox(height: 10,),
+              SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                    itemCount: 5,
+                    scrollDirection: Axis.horizontal,
+                    itemBuilder: (context , index){
+                  return   InkWell(
+                    onTap: (){
+                      Get.to(CategoriesListScreen() , arguments: {
+                        "id":"1",
+                        "name":"Leptop",
+                      });
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      margin: EdgeInsets.only(right: 10),
+                      decoration: BoxDecoration(color: Colors.white,borderRadius: BorderRadius.circular(10),),
+                      child: Row(
+                        children: [
+                          Image(image: AssetImage("assets/images/demo_product.png"),height: 35,width: 35 ,fit: BoxFit.cover,),
+                          SizedBox(width: 05,),
+                          Text("Category",style: TextStyle(fontSize: 15,color: Colors.black),)
+                        ],
+                      ),
+                    ),
+                  );
+
+
+                }),
+              ),
+
+
+
+
+            SizedBox(height: 10,),
+              Text("List Of Products",style: TextStyle(fontSize: 22,fontWeight: FontWeight.w700),),
+              SizedBox(height: 10,),
+
+              GridView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

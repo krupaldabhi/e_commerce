@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 
-class WishlistScreen extends StatefulWidget {
-  const WishlistScreen({super.key});
+class CategoriesListScreen extends StatefulWidget {
+  const CategoriesListScreen({super.key});
 
   @override
-  State<WishlistScreen> createState() => _WishlistScreenState();
+  State<CategoriesListScreen> createState() => _CategoriesListScreenState();
 }
 
-class _WishlistScreenState extends State<WishlistScreen> {
+class _CategoriesListScreenState extends State<CategoriesListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +19,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title: Text(
-          "Wish List",
+          "${Get.arguments['name']}",
           style: const TextStyle(color: Colors.white),
         ),
       ),
@@ -81,7 +81,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
-                                icon: Icon(Icons.delete, color: Colors.red),
+                                icon: Icon(Icons.favorite_border, color: Colors.red),
                                 onPressed: () {},
                               ),
                             ),
