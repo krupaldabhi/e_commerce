@@ -5,7 +5,7 @@ import 'package:e_commerce_app/const/app_urls.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import 'forgot_password_screen.dart';
 
 import 'package:http/http.dart' as http;
@@ -228,14 +228,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future loginApi({required String emailAddress ,required String Password}) async {
     try {
+      SharedPreferences  sp = await SharedPreferences.getInstance();
       var responce =  await http.get(
           Uri.parse("${AppUrls.loginUrl}?email=$emailAddress&password=$Password"));
 
       print("responce is ${responce.statusCode}");
       if(responce.statusCode == 200){
-
         var data = jsonDecode(responce.body);
         print("Data is Here $data");
+        print("User Id  is Here ${data[3]['id']}");
+        await sp.setString('userId', '${data[3]['id']}');
+        Get.showSnackbar(
+          GetSnackBar(
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+            title: "Sucess",
+            message: "${data[2]['message']}",
+          ),
+        );
 
       } else {
         print("Stattus Error ");

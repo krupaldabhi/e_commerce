@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:e_commerce_app/const/app_string.dart';
+import 'package:e_commerce_app/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'on_boarding_screen.dart';
 
@@ -16,12 +18,30 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    print("init State Called");
 
-    Timer(Duration (seconds:  4) , (){
-      print("Print After 4 Second");
-      Get.offAll(OnBoardingScreen());
-    } );
+    print("init State Called");
+    getuserId();
+
+  }
+
+  Future getuserId () async {
+    SharedPreferences  sp = await SharedPreferences.getInstance();
+
+    String? userId = sp.getString("userId");
+    print("User id Is Here From Splash Screen $userId");
+
+    if(userId!= null && userId.isNotEmpty){
+      Timer(Duration (seconds:  4) , (){
+        print("Print After 4 Second");
+        Get.offAll(HomeScreen());
+      } );
+    } else {
+      Timer(Duration (seconds:  4) , (){
+        print("");
+        Get.offAll(OnBoardingScreen());
+      } );
+    }
+
   }
 
   @override
