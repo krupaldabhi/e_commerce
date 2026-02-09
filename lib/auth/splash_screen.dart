@@ -18,7 +18,6 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
     print("init State Called");
     getuserId();
 
@@ -37,11 +36,10 @@ class _SplashScreenState extends State<SplashScreen> {
       } );
     } else {
       Timer(Duration (seconds:  4) , (){
-        print("");
+        print("Route On Board Screen");
         Get.offAll(OnBoardingScreen());
       } );
     }
-
   }
 
   @override
