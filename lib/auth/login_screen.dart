@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../home/home_screen.dart';
 import 'forgot_password_screen.dart';
 
 import 'package:http/http.dart' as http;
@@ -163,7 +164,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             loginApi(emailAddress: emailCtrl.text.toString(), Password: passwordCtrl.text.toString());
                           }
 
-                          // Get.offAll(HomeScreen());
                         },
                         child: Container(
                           height: 40,
@@ -246,12 +246,29 @@ class _LoginScreenState extends State<LoginScreen> {
             message: "${data[2]['message']}",
           ),
         );
+        Get.offAll(HomeScreen());
 
       } else {
+        Get.showSnackbar(
+          GetSnackBar(
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+            title: "Sucess",
+            message: "Invalid Login Attemp",
+          ),
+        );
         print("Stattus Error ");
       }
       // print(jsonDecode(data.toString()));
     } catch (e) {
+      Get.showSnackbar(
+        GetSnackBar(
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+          title: "Sucess",
+          message: "Invalid Login Attemp",
+        ),
+      );
       print("Error Catch $e");
     }
 

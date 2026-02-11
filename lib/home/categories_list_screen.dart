@@ -1,7 +1,13 @@
+import 'dart:convert';
+
 import 'package:e_commerce_app/home/product_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:http/http.dart' as http;
+
+import '../const/app_urls.dart';
+import 'model/product_model.dart';
 
 class CategoriesListScreen extends StatefulWidget {
   const CategoriesListScreen({super.key});
@@ -11,6 +17,19 @@ class CategoriesListScreen extends StatefulWidget {
 }
 
 class _CategoriesListScreenState extends State<CategoriesListScreen> {
+  List<ProductModel> productList = [];
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print("Arguments Is Geted ");
+    print("Id Is Geted ${Get.arguments['id']}");
+    print("Name Is Geted ${Get.arguments['name']}");
+    productAPI(Get.arguments['id']);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +45,9 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
       body:  Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
-          child: GridView.builder(
+          child: isLoading  ?
+          CircularProgressIndicator()
+              : GridView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -35,7 +56,7 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
               crossAxisSpacing: 14,
               childAspectRatio: 0.53,
             ),
-            itemCount: 5,
+            itemCount: productList.length,
             itemBuilder: (context, index) {
               return InkWell(
                 borderRadius: BorderRadius.circular(14),
@@ -57,14 +78,15 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-
                       // IMAGE + WISHLIST
                       Stack(
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
-                            child: Image.asset(
-                              "assets/images/demo_product.png",
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(14),
+                            ),
+                            child: Image.network(
+                              "${AppUrls.productImageUrl}${productList[index].photo}",
                               height: 140,
                               width: double.infinity,
                               fit: BoxFit.cover,
@@ -81,7 +103,10 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
-                                icon: Icon(Icons.favorite_border, color: Colors.red),
+                                icon: Icon(
+                                  Icons.favorite_border,
+                                  color: Colors.red,
+                                ),
                                 onPressed: () {},
                               ),
                             ),
@@ -94,10 +119,9 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
                             /// TITLE
                             Text(
-                              "Premium Stylish Product Name Goes Here",
+                              "${productList[index].title}",
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -110,7 +134,7 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
 
                             /// PRICE
                             Text(
-                              "₹ 200",
+                              "₹ ${productList[index].price}",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -124,14 +148,19 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
                             Container(
                               padding: EdgeInsets.all(08),
                               decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(10)
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
                                 children: [
-                                  Icon(Icons.shopping_cart_rounded, color: Colors.white,  ),
-                                  SizedBox(width: 10,),
-                                  Text("Add To Cart",style: TextStyle(color: Colors.white),
+                                  Icon(
+                                    Icons.shopping_cart_rounded,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 10),
+                                  Text(
+                                    "Add To Cart",
+                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ],
                               ),
@@ -150,4 +179,38 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
 
     );
   }
+
+  Future<List<ProductModel>> productAPI(String id) async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      var response = await http.get(Uri.parse("${AppUrls.product}?categoryid=$id"));
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+
+        setState(() {
+          productList = data
+              .skip(2)
+              .map<ProductModel>((e) => ProductModel.fromJson(e))
+              .toList();
+
+          isLoading = false;
+        });
+
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Error => $e");
+    }
+    setState(() {
+      isLoading = false;
+    });
+
+    return productList;
+  }
+
 }

@@ -231,7 +231,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             );
                           } else {
-                            registerAPI(emailAddress: emailController.text.toString(),
+                            registerAPI(  context: context ,emailAddress: emailController.text.toString(),
                                 Password: passwordController.text.toString(), Mobile: contactController.text.toString());
                           }
 
@@ -274,7 +274,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Future registerAPI({required String emailAddress ,required String Password , required String Mobile}) async {
+  Future registerAPI({required BuildContext context,  required String emailAddress ,required String Password , required String Mobile}) async {
     try {
       var responce =  await http.get(
           Uri.parse("${AppUrls.registerUrl}?email=$emailAddress&password=$Password&mobile=$Mobile"));
@@ -283,15 +283,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if(responce.statusCode == 200){
         var data = jsonDecode(responce.body);
         print("Data is Here $data");
-        Get.showSnackbar(
-          GetSnackBar(
-            backgroundColor: Colors.green,
-            duration: Duration(seconds: 3),
-            title: "Sucess",
-            message: "${data[2]['message']} Please log in using your email and password.",
-          ),
-        );
-        Get.back();
+
       } else {
         print("Stattus Error ");
       }
@@ -300,6 +292,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       print("Error Catch $e");
     }
 
+    Get.showSnackbar(
+      GetSnackBar(
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+        title: "Sucess",
+        message: "Please log in using your email and password.",
+      ),
+    );
+    Navigator.pop(context);
     return null;
   }
 
