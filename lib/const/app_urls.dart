@@ -7,4 +7,5 @@ class AppUrls {
   static String productImageUrl = "${baseUrl}images/product/" ;
   static String category = "${baseUrl}ws/category.php";
   static String product = "${baseUrl}ws/product.php";
+  static String addToWishlist = "${baseUrl}ws/add_to_wishlist.php";
 }

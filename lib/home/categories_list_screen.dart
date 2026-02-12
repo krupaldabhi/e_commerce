@@ -61,7 +61,7 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
               return InkWell(
                 borderRadius: BorderRadius.circular(14),
                 onTap: () {
-                  Get.to(ProductDetailsScreen());
+                  Get.to(ProductDetailsScreen(),arguments: "${productList[index].id}");
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -93,24 +93,25 @@ class _CategoriesListScreenState extends State<CategoriesListScreen> {
                             ),
                           ),
 
-                          Positioned(
-                            top: 8,
-                            right: 8,
+                          // Positioned(
+                          //   top: 8,
+                          //   right: 8,
+                          //
+                          //   child: Container(
+                          //     decoration: BoxDecoration(
+                          //       color: Colors.white,
+                          //       shape: BoxShape.circle,
+                          //     ),
+                          //     child: IconButton(
+                          //       icon: Icon(
+                          //         Icons.favorite_border,
+                          //         color: Colors.red,
+                          //       ),
+                          //       onPressed: () {},
+                          //     ),
+                          //   ),
+                          // ),
 
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                              ),
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.favorite_border,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () {},
-                              ),
-                            ),
-                          ),
                         ],
                       ),
 
