@@ -1,7 +1,14 @@
+import 'dart:convert';
+
 import 'package:e_commerce_app/home/product_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../const/app_urls.dart';
+import 'model/wishlist_model.dart';
 
 class WishlistScreen extends StatefulWidget {
   const WishlistScreen({super.key});
@@ -11,6 +18,14 @@ class WishlistScreen extends StatefulWidget {
 }
 
 class _WishlistScreenState extends State<WishlistScreen> {
+  List<WishlistModel> wishList = [];
+  bool isLoading = false ;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    wishListAPI();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +41,17 @@ class _WishlistScreenState extends State<WishlistScreen> {
       body:  Padding(
         padding: const EdgeInsets.all(8.0),
         child: SingleChildScrollView(
-          child: GridView.builder(
+          child:
+          wishList.isEmpty ?
+             Center(
+               child: Column(children: [
+                 SizedBox(height: 100,),
+                 Image(image: AssetImage("assets/images/empty_wishlist.png")),
+                  Text("Please Add Item To Wishlist",style: TextStyle(fontSize: 18),)
+               ],),
+             )
+          :
+          GridView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -35,8 +60,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
               crossAxisSpacing: 14,
               childAspectRatio: 0.53,
             ),
-            itemCount: 5,
+            itemCount: wishList.length,
             itemBuilder: (context, index) {
+              var item = wishList[index];
               return InkWell(
                 borderRadius: BorderRadius.circular(14),
                 onTap: () {
@@ -63,8 +89,8 @@ class _WishlistScreenState extends State<WishlistScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
-                            child: Image.asset(
-                              "assets/images/demo_product.png",
+                            child: Image.network(
+                              "${AppUrls.productImageUrl}${item.photo}",
                               height: 140,
                               width: double.infinity,
                               fit: BoxFit.cover,
@@ -74,7 +100,6 @@ class _WishlistScreenState extends State<WishlistScreen> {
                           Positioned(
                             top: 8,
                             right: 8,
-
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -82,7 +107,10 @@ class _WishlistScreenState extends State<WishlistScreen> {
                               ),
                               child: IconButton(
                                 icon: Icon(Icons.delete, color: Colors.red),
-                                onPressed: () {},
+                                onPressed: () {
+                                  print("Wishlist Id${item.wishlistId}");
+                                  deleteWishlist(item.wishlistId);
+                                  },
                               ),
                             ),
                           ),
@@ -97,7 +125,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
                             /// TITLE
                             Text(
-                              "Premium Stylish Product Name Goes Here",
+                              item.title,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -110,7 +138,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
                             /// PRICE
                             Text(
-                              "₹ 200",
+                              "₹${item.price}",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -120,7 +148,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
                             SizedBox(height: 10),
 
-                            /// ADD TO CART BUTTON
+                            // ADD TO CART BUTTON
                             Container(
                               padding: EdgeInsets.all(08),
                               decoration: BoxDecoration(
@@ -150,4 +178,77 @@ class _WishlistScreenState extends State<WishlistScreen> {
 
     );
   }
+
+  Future<List<WishlistModel>> wishListAPI() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      SharedPreferences sp = await SharedPreferences.getInstance();
+     String? userId =  sp.getString("userId");
+      var response = await http.get(
+          Uri.parse("${AppUrls.wishlist}?usersid=$userId"));
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+
+        setState(() {
+          wishList = data
+              .skip(2)
+              .map<WishlistModel>((e) => WishlistModel.fromJson(e))
+              .toList();
+
+          isLoading = false;
+        });
+
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Error => $e");
+    }
+    setState(() {
+      isLoading = false;
+    });
+
+    return wishList;
+  }
+  Future deleteWishlist(String id) async {
+    try {
+
+
+      var responce =  await http.get(
+          Uri.parse("${AppUrls.deleteWishlist}?wishlistid=$id"));
+print("${AppUrls.deleteWishlist}wishlistid=$id");
+
+      print("responce is ${responce.statusCode}");
+      if(responce.statusCode == 200){
+        var data = jsonDecode(responce.body);
+        print("Data is Here $data");
+
+        Get.showSnackbar(
+          const GetSnackBar(
+            title: "Success",
+            message: "Deleted to your wishlist",
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+            snackPosition: SnackPosition.BOTTOM,
+          ),
+        );
+        Navigator.pop(context);
+        // Get.back();
+      } else {
+
+        print("Stattus Error ");
+      }
+      // print(jsonDecode(data.toString()));
+    } catch (e) {
+
+      print("Error Catch $e");
+    }
+    return null;
+  }
+
+
 }

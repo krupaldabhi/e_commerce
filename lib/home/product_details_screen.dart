@@ -108,7 +108,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               children: [
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      addToCart(Get.arguments);
+                    },
                     icon: const Icon(Icons.shopping_cart_outlined , color: Colors.white,),
                     label: const Text("Add to Cart", style: TextStyle(color: Colors.white),),
                     style: ElevatedButton.styleFrom(
@@ -229,6 +231,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
     return null;
   }
+
  Future addToWishlist(String id) async {
    try {
      SharedPreferences  sp = await SharedPreferences.getInstance();
@@ -251,8 +254,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
            snackPosition: SnackPosition.BOTTOM, // Optional: keeps it out of the way
          ),
        );
-
-
      } else {
        // Get.showSnackbar(
        //   GetSnackBar(
@@ -276,7 +277,53 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
      // );
      print("Error Catch $e");
    }
+   return null;
+ }
+ Future addToCart(String id) async {
+   try {
+     SharedPreferences  sp = await SharedPreferences.getInstance();
+     String? userId = await sp.getString('userId');
+     print("User id $userId");
+     var responce =  await http.get(
+         Uri.parse("${AppUrls.addToCart}?productid=$id&usersid=$userId"));
 
+     print("responce is ${responce.statusCode}");
+     if(responce.statusCode == 200){
+       var data = jsonDecode(responce.body);
+       print("Data is Here $data");
+
+       Get.showSnackbar(
+         const GetSnackBar(
+           title: "Success",
+           message: "Added to your Cart",
+           backgroundColor: Colors.green,
+           duration: Duration(seconds: 3),
+           snackPosition: SnackPosition.BOTTOM, // Optional: keeps it out of the way
+         ),
+       );
+     } else {
+       // Get.showSnackbar(
+       //   GetSnackBar(
+       //     backgroundColor: Colors.red,
+       //     duration: Duration(seconds: 3),
+       //     title: "Sucess",
+       //     message: "Invalid Login Attemp",
+       //   ),
+       // );
+       print("Stattus Error ");
+     }
+     // print(jsonDecode(data.toString()));
+   } catch (e) {
+     // Get.showSnackbar(
+     //   GetSnackBar(
+     //     backgroundColor: Colors.red,
+     //     duration: Duration(seconds: 3),
+     //     title: "Sucess",
+     //     message: "Invalid Login Attemp",
+     //   ),
+     // );
+     print("Error Catch $e");
+   }
    return null;
  }
 
