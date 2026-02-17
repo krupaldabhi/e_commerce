@@ -1,9 +1,16 @@
+import 'dart:convert';
+
 import 'package:e_commerce_app/home/product_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../const/app_urls.dart';
 import 'checkout_screen.dart';
+import 'model/cart_list_model.dart';
+import 'model/product_model.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -13,6 +20,34 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  List<CartModel> cartList = [];
+  List<ProductModel> productList = [];
+  double totalPrice = 0.0;
+  void calculateTotal() {
+    double total = 0;
+
+    for (var item in cartList) {
+      double price = double.tryParse(item.price) ?? 0;
+      int qty = int.tryParse(item.quantity) ?? 1;
+
+      total += price * qty;
+    }
+
+    setState(() {
+      totalPrice = total;
+    });
+  }
+
+
+  bool isLoading = false;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    cartAPI();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,14 +70,15 @@ class _CartScreenState extends State<CartScreen> {
               crossAxisCount: 2,
               mainAxisSpacing: 14,
               crossAxisSpacing: 14,
-              childAspectRatio: 0.53,
+              childAspectRatio: 0.70,
             ),
-            itemCount: 5,
+            itemCount: cartList.length,
             itemBuilder: (context, index) {
+              var item = cartList[index];
               return InkWell(
                 borderRadius: BorderRadius.circular(14),
                 onTap: () {
-                  Get.to(ProductDetailsScreen());
+                  Get.to(ProductDetailsScreen(),arguments: item.id);
                 },
                 child: Container(
                   decoration: BoxDecoration(
@@ -65,8 +101,8 @@ class _CartScreenState extends State<CartScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
-                            child: Image.asset(
-                              "assets/images/demo_product.png",
+                            child: Image.network(
+                              "${AppUrls.productImageUrl}${item.photo}",
                               height: 140,
                               width: double.infinity,
                               fit: BoxFit.cover,
@@ -83,8 +119,10 @@ class _CartScreenState extends State<CartScreen> {
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
-                                icon: Icon(Icons.favorite_border, color: Colors.red),
-                                onPressed: () {},
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  deleteCart(item.cartId);
+                                },
                               ),
                             ),
                           ),
@@ -99,7 +137,7 @@ class _CartScreenState extends State<CartScreen> {
 
                             /// TITLE
                             Text(
-                              "Premium Stylish Product Name Goes Here",
+                              item.title,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
@@ -112,7 +150,7 @@ class _CartScreenState extends State<CartScreen> {
 
                             /// PRICE
                             Text(
-                              "₹ 200",
+                              "₹ ${item.price}",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -121,23 +159,6 @@ class _CartScreenState extends State<CartScreen> {
                             ),
 
                             SizedBox(height: 10),
-
-                            /// ADD TO CART BUTTON
-                            Container(
-                              padding: EdgeInsets.all(08),
-                              decoration: BoxDecoration(
-                                  color: Colors.blue,
-                                  borderRadius: BorderRadius.circular(10)
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.shopping_cart_rounded, color: Colors.white,  ),
-                                  SizedBox(width: 10,),
-                                  Text("Add To Cart",style: TextStyle(color: Colors.white),
-                                  ),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -167,12 +188,16 @@ class _CartScreenState extends State<CartScreen> {
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text("Total Price", style: TextStyle(fontSize: 12, color: Colors.grey)),
+              children: [
+                const Text("Total Price", style: TextStyle(fontSize: 12, color: Colors.grey)),
                 Text(
-                  "₹299",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  "₹${totalPrice}",
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+
               ],
             ),
             const SizedBox(width: 16),
@@ -201,4 +226,85 @@ class _CartScreenState extends State<CartScreen> {
 
     );
   }
+
+  Future<List<CartModel>> cartAPI() async {
+    try {
+      setState(() {
+        isLoading = true;
+      });
+      SharedPreferences sp = await SharedPreferences.getInstance();
+
+      String? userId = sp.getString("userId");
+      var response = await http.get(
+        Uri.parse(
+       "${ AppUrls.cartList}?usersid=$userId"
+        ),
+      );
+      print("Body Responce is here ${response.body}");
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+
+
+
+        setState(() {
+          cartList = data
+              .skip(2)
+              .map<CartModel>((e) => CartModel.fromJson(e))
+              .toList();
+
+          isLoading = false;
+        });
+        calculateTotal();
+
+      }
+    } catch (e) {
+      print("Cart Error => $e");
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+
+    return cartList;
+  }
+
+  Future deleteCart(String id) async {
+    try {
+
+
+      var responce =  await http.get(
+          Uri.parse("${AppUrls.deleteCart}?cartid=$id"));
+print("${AppUrls.deleteCart}?cartid=$id");
+      print("responce is ${responce.statusCode}");
+      if(responce.statusCode == 200){
+        var data = jsonDecode(responce.body);
+        print("Data is Here $data");
+
+        Get.showSnackbar(
+          const GetSnackBar(
+            title: "Success",
+            message: "Deleted to your Cart",
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+            snackPosition: SnackPosition.BOTTOM,
+          ),
+        );
+        Navigator.pop(context);
+        // Get.back();
+      } else {
+
+        print("Stattus Error ");
+      }
+      // print(jsonDecode(data.toString()));
+    } catch (e) {
+
+      print("Error Catch $e");
+    }
+    return null;
+  }
+
+
+
+
+
 }

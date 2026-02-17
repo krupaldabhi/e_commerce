@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:e_commerce_app/home/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -177,7 +178,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
-                  Get.to(CheckoutScreen(),arguments: 1 );
+                  Get.to(CartScreen());
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFEF4444),
@@ -286,12 +287,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
      print("User id $userId");
      var responce =  await http.get(
          Uri.parse("${AppUrls.addToCart}?productid=$id&usersid=$userId"));
-
      print("responce is ${responce.statusCode}");
      if(responce.statusCode == 200){
        var data = jsonDecode(responce.body);
        print("Data is Here $data");
-
        Get.showSnackbar(
          const GetSnackBar(
            title: "Success",
