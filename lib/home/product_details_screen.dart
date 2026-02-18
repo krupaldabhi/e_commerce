@@ -178,6 +178,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             Expanded(
               child: ElevatedButton(
                 onPressed: () {
+                  addToCart(Get.arguments);
                   Get.to(CartScreen());
                 },
                 style: ElevatedButton.styleFrom(

@@ -1,6 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../const/app_urls.dart';
 
 
 class CheckoutScreen extends StatefulWidget {
@@ -11,6 +17,13 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  TextEditingController nameController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  TextEditingController landmarkController = TextEditingController();
+  TextEditingController contactNumbreController = TextEditingController();
+  TextEditingController cityController = TextEditingController();
+  TextEditingController pinCodeController = TextEditingController();
+  TextEditingController remarksController = TextEditingController();
   @override
   void initState() {
     // TODO: implement initState
@@ -55,8 +68,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 6),
               TextFormField(
-                keyboardType: TextInputType.emailAddress,
-                // controller: amountController,
+                controller: nameController,
                 decoration: InputDecoration(
                   hintText: "Enter Your Name Here ",
                   prefixIcon: const Icon(
@@ -86,8 +98,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 6),
               TextFormField(
-                keyboardType: TextInputType.emailAddress,
-
+controller: addressController,
                 decoration: InputDecoration(
                   hintText: "Enter Your Address Here ",
                   prefixIcon: const Icon(
@@ -117,8 +128,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 6),
               TextFormField(
-                keyboardType: TextInputType.emailAddress,
-                // controller: amountController,
+                controller: landmarkController,
                 decoration: InputDecoration(
                   hintText: "Enter Your Landmark Here ",
                   prefixIcon: const Icon(
@@ -149,6 +159,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               const SizedBox(height: 6),
               TextFormField(
                 maxLength: 10,
+                controller: contactNumbreController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   hintText: "Enter Your Contact Number ",
@@ -180,8 +191,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 6),
               TextFormField(
-                keyboardType: TextInputType.emailAddress,
-                // controller: amountController,
+                controller: cityController,
                 decoration: InputDecoration(
                   hintText: "Enter Your City ",
                   prefixIcon: const Icon(
@@ -214,6 +224,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               TextFormField(
                 keyboardType: TextInputType.phone ,
               maxLength: 06,
+                controller: pinCodeController,
                 decoration: InputDecoration(
                   hintText: "Enter Your Pin code ",
                   prefixIcon: const Icon(
@@ -244,8 +255,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 6),
               TextFormField(
-                keyboardType: TextInputType.phone ,
-              maxLength: 06,
+                controller: remarksController,
                 decoration: InputDecoration(
                   hintText: "Enter Your Remarks ",
                   prefixIcon: const Icon(
@@ -265,14 +275,53 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
 
               SizedBox(height: 15,),
-              Container(
-                padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(15),
-                color: Colors.blue,
-                
-              ),
-              child: Center(child: Text("Place Order",style: TextStyle(fontSize: 18,color: Colors.white,fontWeight: FontWeight.w800),)),
+              InkWell(onTap: (){
+                print("Button Pressed");
+
+                if(nameController.text.isEmpty && addressController.text.isEmpty && landmarkController.text.isEmpty && contactNumbreController.text.isEmpty && cityController.text.isEmpty && pinCodeController.text.isEmpty && remarksController.text.isEmpty){
+                  Get.showSnackbar(
+                    const GetSnackBar(
+                      title: "Fail",
+                      message: "Plese Fill All Field",
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 3),
+                      snackPosition: SnackPosition.BOTTOM, // Optional: keeps it out of the way
+                    ),
+                  );
+                } else if (contactNumbreController.text.length != 10){
+                  Get.showSnackbar(
+                    const GetSnackBar(
+                      title: "Fail",
+                      message: "Plese Enter Valid Contact Number",
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 3),
+                      snackPosition: SnackPosition.BOTTOM, // Optional: keeps it out of the way
+                    ),
+                  );
+                }else if (pinCodeController.text.length != 6){
+                  Get.showSnackbar(
+                    const GetSnackBar(
+                      title: "Fail",
+                      message: "Plese Enter Valid Pin code",
+                      backgroundColor: Colors.red,
+                      duration: Duration(seconds: 3),
+                      snackPosition: SnackPosition.BOTTOM, // Optional: keeps it out of the way
+                    ),
+                  );
+                } else {
+                  print("All Field Are Proper ");
+                  checkoutAPI(context);
+                }
+              },
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  color: Colors.blue,
+
+                ),
+                child: Center(child: Text("Place Order",style: TextStyle(fontSize: 18,color: Colors.white,fontWeight: FontWeight.w800),)),
+                ),
               ),
             ],
           ),
@@ -281,4 +330,39 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     );
   }
+
+  Future checkoutAPI(BuildContext context) async {
+    try {
+      SharedPreferences sp = await SharedPreferences.getInstance();
+      String? userId =  sp.getString("userId");
+print("${AppUrls.checkout}?usersid=$userId&fullname=${nameController.text.toString()}&address1=${addressController.text.toString()}&address2=${landmarkController.text.toString()}&mobile=${contactNumbreController.text.toString()}&city=${cityController.text.toString()}&pincode=${pinCodeController.text.toString()}&remarks=${remarksController.text.toString()}");
+      var responce =  await http.post(
+          Uri.parse("${AppUrls.checkout}?usersid=$userId&fullname=${nameController.text.toString()}&address1=${addressController.text.toString()}&address2=${landmarkController.text.toString()}&mobile=${contactNumbreController.text.toString()}&city=${cityController.text.toString()}&pincode=${pinCodeController.text.toString()}&remarks=${remarksController.text.toString()}"));
+
+      print("responce is ${responce.statusCode}");
+      if(responce.statusCode == 200){
+        var data = jsonDecode(responce.body);
+        print("Data is Here $data");
+
+      } else {
+        print("Stattus Error ");
+      }
+      // print(jsonDecode(data.toString()));
+    } catch (e) {
+      print("Error Catch $e");
+    }
+
+    Get.showSnackbar(
+      GetSnackBar(
+        backgroundColor: Colors.green,
+        duration: Duration(seconds: 3),
+        title: "Sucess",
+        message: "Order Placed",
+      ),
+    );
+    Navigator.pop(context);
+    return null;
+  }
+
+
 }

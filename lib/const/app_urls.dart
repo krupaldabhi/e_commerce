@@ -13,4 +13,5 @@ class AppUrls {
   static String addToCart = "${baseUrl}/ws/add_to_cart.php";
   static String cartList = "${baseUrl}/ws/cart.php";
   static String deleteCart = "${baseUrl}ws/delete_from_cart.php";
+  static String checkout = "${baseUrl}ws/checkout.php";
 }
